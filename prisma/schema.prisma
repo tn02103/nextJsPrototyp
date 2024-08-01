@@ -20,6 +20,7 @@ model User {
     username           String       @db.VarChar(10)
     name               String
     password           String
+    role               Int          @db.SmallInt
     email              String
     usingAuthenticator Boolean
     assosiationId      String       @db.Char(36)

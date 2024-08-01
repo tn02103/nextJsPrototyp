@@ -13,6 +13,7 @@ CREATE TABLE "User" (
     "username" VARCHAR(10) NOT NULL,
     "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "role" SMALLINT NOT NULL,
     "email" TEXT NOT NULL,
     "usingAuthenticator" BOOLEAN NOT NULL,
     "assosiationId" CHAR(36) NOT NULL,
