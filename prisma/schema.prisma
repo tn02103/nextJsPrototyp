@@ -1,0 +1,41 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider          = "postgresql"
+    url               = env("DATABASE_URL")
+    shadowDatabaseUrl = env("DATABASE_SHADOW_URL")
+}
+
+model Assosiation {
+    id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Char(36)
+    name    String @unique @db.VarChar(30)
+    acronym String @db.VarChar(5)
+    User    User[]
+}
+
+model User {
+    id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Char(36)
+    username           String       @db.VarChar(10)
+    name               String
+    password           String
+    email              String
+    usingAuthenticator Boolean
+    assosiationId      String       @db.Char(36)
+    assosiation        Assosiation  @relation(fields: [assosiationId], references: [id])
+    EmailToken         EmailToken[]
+}
+
+model EmailToken {
+    id     String @id @default(dbgenerated("gen_random_uuid()"))
+    token  Int    @db.SmallInt
+    userId String @db.Char(36)
+    user   User   @relation(fields: [userId], references: [id])
+}
+
+model TowFactorAppUser {
+    id       String  @id @default(dbgenerated("gen_random_uuid()"))
+    secret   String
+    verified Boolean @default(false)
+}

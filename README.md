@@ -3,7 +3,6 @@ This is a prototype Project to show how to savely implement NextJs 14 in your ne
 ## Getting Started
 ### Enviroment
 create a .env file with the following variables:
-
 ```
 
 ```
