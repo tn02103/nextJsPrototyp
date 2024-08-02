@@ -16,27 +16,42 @@ model Assosiation {
 }
 
 model User {
-    id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Char(36)
-    username           String       @db.VarChar(10)
+    id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Char(36)
+    username           String             @db.VarChar(10)
     name               String
     password           String
-    role               Int          @db.SmallInt
+    role               Int                @db.SmallInt
     email              String
-    usingAuthenticator Boolean
-    assosiationId      String       @db.Char(36)
-    assosiation        Assosiation  @relation(fields: [assosiationId], references: [id])
-    EmailToken         EmailToken[]
+    usingAuthenticator Boolean            @default(false)
+    active             Boolean            @default(true)
+    assosiationId      String             @db.Char(36)
+    assosiation        Assosiation        @relation(fields: [assosiationId], references: [id])
+    emailToken         EmailToken[]
+    towFactorAppUser   TowFactorAppUser[]
 }
 
 model EmailToken {
-    id     String @id @default(dbgenerated("gen_random_uuid()"))
-    token  Int    @db.SmallInt
-    userId String @db.Char(36)
-    user   User   @relation(fields: [userId], references: [id])
+    id        String   @id @default(dbgenerated("gen_random_uuid()"))
+    token     Int
+    userId    String   @db.Char(36)
+    endOfLive DateTime
+    user      User     @relation(fields: [userId], references: [id])
 }
 
 model TowFactorAppUser {
     id       String  @id @default(dbgenerated("gen_random_uuid()"))
     secret   String
     verified Boolean @default(false)
+    userId   String  @db.Char(36)
+    user     User    @relation(fields: [userId], references: [id])
+}
+
+model LoginAttempt {
+    id         String  @id @default(dbgenerated("gen_random_uuid()"))
+    ipAdress   String
+    username   String
+    acronym    String
+    withToken  Boolean
+    successful Boolean
+    message    String
 }
