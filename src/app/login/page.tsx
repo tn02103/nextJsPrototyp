@@ -3,7 +3,7 @@
 import { login } from "@/actions/authentication/login";
 import { loginFormSchema, LoginFormSchema } from "@/zod/login";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { FormControl } from "react-bootstrap";
 import { Form, useForm } from "react-hook-form";
@@ -11,6 +11,10 @@ import { Form, useForm } from "react-hook-form";
 
 export default function LoginPage() {
     const router = useRouter();
+    const [invalidCredentials, setInvalidCredentials] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const searchParams = useSearchParams();
+
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormSchema>({
         mode: "onChange",
         resolver: zodResolver(loginFormSchema)
@@ -19,26 +23,50 @@ export default function LoginPage() {
 
     function onSubmit(data: LoginFormSchema) {
         if (step === 0) {
-            login(data).then(() => {
-                setStep(1);
-            }).catch(e => console.error(e));
+            setSubmitting(true);
+            setInvalidCredentials(false);
+            login(data).then((result) => {
+                console.log(result);
+                if (result.error) {
+                    setInvalidCredentials(true);
+                } else {
+                    setStep(1);
+                }
+            }).catch(e =>
+                console.error(e)
+            ).finally(() => {
+                setSubmitting(false);
+            });
         } else {
             if (!data.token) return;
-            login(data).then(() => {
-                router.push('/');
-            }).catch(e => console.error(e));
+            setSubmitting(true);
+            login(data).then((result) => {
+                console.log("🚀 ~ login ~ result:", result)
+                if (result.error || !result.logedIn) {
+                    setInvalidCredentials(true);
+                } else {
+                    const returnUrl = searchParams.get('returnUrl');
+                    if (returnUrl && urlWhiteList.includes(returnUrl)) {
+                        return router.push(returnUrl);
+                    }
+                    router.push('/');
+                }
+            }).catch(e => {
+                console.error(e)
+            }).finally(() => {
+                setSubmitting(false);
+            });
         }
     }
 
     return (
         <div className="m-5 conatiner-xs justify-content-center row">
-
             <div className="col-3 bg-secondary-subtle ">
                 <h1 className="text-center">Login</h1>
                 <form className="" onSubmit={handleSubmit(onSubmit)}>
                     {(step === 0) &&
                         <div className="row m-4">
-                            <label htmlFor="assosiation">Organisationkürzel</label>
+                            <label htmlFor="assosiation">Organisationskürzel</label>
                             <FormControl
                                 type="text"
                                 id="assosiation"
@@ -68,19 +96,38 @@ export default function LoginPage() {
                     {(step === 1) &&
                         <div>
                             <label htmlFor="token">Token</label>
-                            <input
+                            <FormControl
                                 type="text"
                                 id="token"
                                 autoComplete="off"
+                                isInvalid={!!errors.token}
                                 {...register('token')}
                             />
                         </div>
                     }
+                    {invalidCredentials &&
+                        <div className="text-danger">
+                            {(step === 0) ?
+                                "Nutzername oder Passwort sind Invalide" :
+                                "Invalieder 2FA Token"
+                            }
+                        </div>
+                    }
                     <div className="row mx-4 justify-content-end">
-                        <button type="submit" className="col col-auto btn btn-primary">{(step==0)?"Weiter":"Login"}</button>
+                        <button
+                            type="submit"
+                            className="col col-auto btn btn-primary"
+                            disabled={submitting}
+                        >
+                            {(step == 0) ? "Weiter" : "Login"}
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     )
 }
+
+const urlWhiteList = [
+    "/", "/admin/user", "account"
+]
