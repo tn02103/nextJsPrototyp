@@ -23,18 +23,44 @@ declare module "next-auth" {
             id: string,
             name: string,
             email: string,
-            role: AuthRole;
+            role: AuthRole,
             assosiation: {
                 id: string,
                 name: string,
             };
-        },
+        } | null,
         expires: ISODateString;
     }
+
     interface JWT extends DefaultJWT {
-        picture: unknown;
-        name: unknown;
-        email: unknown;
-        user: User
+        picture: undefined;
+        name: undefined;
+        email: undefined;
+        user: {
+            id: string,
+            name: string,
+            email: string,
+            role: AuthRole,
+            assosiation: {
+                id: string,
+                name: string,
+            };
+        }
+    }
+}
+
+declare module "next-auth/jwt" {
+    /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
+    interface JWT extends DefaultJWT {
+        user: {
+            id: string,
+            name: string,
+            email: string,
+            role: AuthRole,
+            assosiation: {
+                id: string,
+                name: string,
+            };
+        }
     }
 }

@@ -94,6 +94,15 @@ export const customCredentialProvider = Credentials({
 
         const prisma = getPrisma(assosiation.id);
         const dbUser = await prisma.user.findFirst({
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                role: true,
+                email: true,
+                password: true,
+                usingAuthenticator: true,
+            },
             where: {
                 assosiationId: assosiation.id,
                 username,

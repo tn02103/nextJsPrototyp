@@ -19,7 +19,6 @@ export default function LoginPage() {
 
     function onSubmit(data: LoginFormSchema) {
         if (step === 0) {
-            console.log(data);
             login(data).then(() => {
                 setStep(1);
             }).catch(e => console.error(e));
@@ -30,7 +29,7 @@ export default function LoginPage() {
             }).catch(e => console.error(e));
         }
     }
-    console.log(errors);
+
     return (
         <div className="m-5 conatiner-xs justify-content-center row">
 
