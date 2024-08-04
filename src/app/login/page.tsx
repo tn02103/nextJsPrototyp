@@ -6,8 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { FormControl } from "react-bootstrap";
-import { Form, useForm } from "react-hook-form";
-
+import { useForm } from "react-hook-form";
 
 export default function LoginPage() {
     const router = useRouter();
