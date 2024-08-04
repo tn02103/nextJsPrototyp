@@ -15,7 +15,8 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "role" SMALLINT NOT NULL,
     "email" TEXT NOT NULL,
-    "usingAuthenticator" BOOLEAN NOT NULL,
+    "usingAuthenticator" BOOLEAN NOT NULL DEFAULT false,
+    "active" BOOLEAN NOT NULL DEFAULT true,
     "assosiationId" CHAR(36) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -24,8 +25,9 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "EmailToken" (
     "id" TEXT NOT NULL DEFAULT gen_random_uuid(),
-    "token" SMALLINT NOT NULL,
+    "token" INTEGER NOT NULL,
     "userId" CHAR(36) NOT NULL,
+    "endOfLive" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "EmailToken_pkey" PRIMARY KEY ("id")
 );
@@ -35,8 +37,22 @@ CREATE TABLE "TowFactorAppUser" (
     "id" TEXT NOT NULL DEFAULT gen_random_uuid(),
     "secret" TEXT NOT NULL,
     "verified" BOOLEAN NOT NULL DEFAULT false,
+    "userId" CHAR(36) NOT NULL,
 
     CONSTRAINT "TowFactorAppUser_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LoginAttempt" (
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid(),
+    "ipAdress" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "acronym" TEXT NOT NULL,
+    "withToken" BOOLEAN NOT NULL,
+    "successful" BOOLEAN NOT NULL,
+    "message" TEXT NOT NULL,
+
+    CONSTRAINT "loginAttempt_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -47,3 +63,6 @@ ALTER TABLE "User" ADD CONSTRAINT "User_assosiationId_fkey" FOREIGN KEY ("assosi
 
 -- AddForeignKey
 ALTER TABLE "EmailToken" ADD CONSTRAINT "EmailToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TowFactorAppUser" ADD CONSTRAINT "TowFactorAppUser_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

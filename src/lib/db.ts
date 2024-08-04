@@ -22,7 +22,14 @@ const globalForPrisma = global as unknown as {
     prisma: PrismaClient
 }
 
-const prisma = globalForPrisma.prisma || new PrismaClient();
+const prisma = globalForPrisma.prisma || new PrismaClient({
+    omit: {
+        user: {
+            password: true,
+            usingAuthenticator: true,
+        }
+    }
+});
 
 export function getPrisma(assosiationId: string) {
     return prisma.$extends(forAssosiation(assosiationId)) as PrismaClient;
