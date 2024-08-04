@@ -37,6 +37,8 @@ model EmailToken {
     userId    String   @db.Char(36)
     endOfLive DateTime
     user      User     @relation(fields: [userId], references: [id])
+
+    @@unique([token, userId])
 }
 
 model TowFactorAppUser {
@@ -48,7 +50,8 @@ model TowFactorAppUser {
 }
 
 model LoginAttempt {
-    id         String  @id @default(dbgenerated("gen_random_uuid()"))
+    id         String   @id @default(dbgenerated("gen_random_uuid()"))
+    date       DateTime @default(now())
     ipAdress   String
     username   String
     acronym    String

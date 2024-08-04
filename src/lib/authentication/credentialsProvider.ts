@@ -106,8 +106,10 @@ export const customCredentialProvider = Credentials({
             where: {
                 assosiationId: assosiation.id,
                 username,
+                active: true,
             },
         });
+        console.log("🚀 ~ authorize: ~ dbUser, password:", dbUser, password);
 
         if (!dbUser || !await bcrypt.compare(password, dbUser.password)) {
             await ipLimiter.consume(ipAdress);
@@ -136,6 +138,8 @@ export const customCredentialProvider = Credentials({
 
         // login
         await saveLoginAttempt({ ipAdress, acronym, username, withToken: true, successful: true, message: "Authentication without 2FA successful" });
+        console.log("🚀 ~ authorize: ~ succfully completed:");
+        
         return {
             id: dbUser.id,
             name: dbUser.name,
@@ -167,10 +171,12 @@ async function verifyToken(userId: string, usingAuthenticator: boolean, token: s
 
         return Number.isInteger(t);
     } else {
-        const dbToken = await prisma.emailToken.findFirst({
+        const dbToken = await prisma.emailToken.delete({
             where: {
-                token: +token,
-                userId: userId,
+                token_userId: {
+                    token: +token,
+                    userId: userId,
+                },
                 endOfLive: { gt: new Date() }
             }
         });

@@ -10,7 +10,7 @@ const { auth } = NextAuth(authConfig)
 export default auth((request) => {
     const session = request.auth
     const pathname = request.nextUrl.pathname;
-    console.log("🚀 ~ auth middleware:", request.auth, session, pathname)
+    // console.log("🚀 ~ auth middleware:", request.auth, session, pathname)
 
     if (!session || !session.user) {
         if (pathname.startsWith("/public") || pathname.startsWith("/login")) {
@@ -21,10 +21,13 @@ export default auth((request) => {
 
 
     if (pathname.startsWith('/admin') && session.user.role < AuthRole.admin) {
-        return NextResponse.rewrite('/403')
+        return NextResponse.rewrite(new URL('/403', request.url))
     }
-    
+
 });
+
+
+
 
 export const config = {
     matcher: [
