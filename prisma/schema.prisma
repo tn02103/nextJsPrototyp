@@ -1,5 +1,6 @@
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -22,21 +23,40 @@ model User {
     password           String
     role               Int          @db.SmallInt
     email              String
-    usingAuthenticator Boolean
+    usingAuthenticator Boolean      @default(false)
+    active             Boolean      @default(true)
     assosiationId      String       @db.Char(36)
     assosiation        Assosiation  @relation(fields: [assosiationId], references: [id])
-    EmailToken         EmailToken[]
+    emailToken         EmailToken[]
+    towFactorApp       TwoFactorApp?
 }
 
 model EmailToken {
-    id     String @id @default(dbgenerated("gen_random_uuid()"))
-    token  Int    @db.SmallInt
-    userId String @db.Char(36)
-    user   User   @relation(fields: [userId], references: [id])
+    id        String   @id @default(dbgenerated("gen_random_uuid()"))
+    token     Int
+    userId    String   @db.Char(36)
+    endOfLive DateTime
+    user      User     @relation(fields: [userId], references: [id])
+
+    @@unique([token, userId])
 }
 
-model TowFactorAppUser {
+model TwoFactorApp {
     id       String  @id @default(dbgenerated("gen_random_uuid()"))
     secret   String
+    appName  String
     verified Boolean @default(false)
+    userId   String  @unique @db.Char(36)
+    user     User    @relation(fields: [userId], references: [id])
+}
+
+model LoginAttempt {
+    id         String   @id @default(dbgenerated("gen_random_uuid()"))
+    date       DateTime @default(now())
+    ipAdress   String
+    username   String
+    acronym    String
+    withToken  Boolean
+    successful Boolean
+    message    String
 }
