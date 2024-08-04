@@ -13,7 +13,7 @@ export const authConfig = {
     },
     callbacks: {
         async jwt({ session, user, token }) {
-            console.log("🚀 ~ jwt ~ session, user, token:", session, user, token)
+            // console.log("🚀 ~ jwt ~ session, user, token:", session, user, token)
             if (user) {
                 const dbUser = await getPrisma(user.assosiation.id).user.findUnique({
                     where: { id: user.id, active: true },
@@ -40,15 +40,15 @@ export const authConfig = {
             return null;
         },
         async session({ session, token, user }) {
-            console.log("🚀 ~ session ~ session, token, user :", session, token, user);
+            // console.log("🚀 ~ session ~ session, token, user :", session, token, user);
             if (token) {
-                console.log(' ~ session ~ with token');
+                // console.log(' ~ session ~ with token');
                 return {
                     ...session,
                     user: token.user,
                 }
             } else {
-                console.log(' ~ session ~ without token');
+                // console.log(' ~ session ~ without token');
                 return {
                     ...session,
                     user: null
