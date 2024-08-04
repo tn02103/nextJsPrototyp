@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+import nodemailer from "nodemailer"
 
 export const getMailAgend = () => {
     return nodemailer.createTransport({
@@ -9,4 +9,12 @@ export const getMailAgend = () => {
             pass: process.env.EMAIL_PASSWORD,
         }
     })
+}
+
+export function encodeHTML(str: string): string {
+    return str.replace(/&/g, '&')
+              .replace(/</g, '<')
+              .replace(/>/g, '>')
+              .replace(/"/g, '"')
+              .replace(/'/g, '\'');
 }

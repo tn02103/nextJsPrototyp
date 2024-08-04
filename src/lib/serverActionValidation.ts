@@ -1,16 +1,24 @@
+import { compare } from "bcrypt";
+import { User } from "next-auth";
+import { redirect } from "next/navigation";
+import { RateLimiterMemory } from "rate-limiter-flexible";
 import "server-only";
+import { z } from "zod";
 import { AuthRole } from "./authRole";
 import { auth } from "./authentication/auth";
-import { redirect } from "next/navigation";
-import { z } from "zod";
-import { getSession } from "next-auth/react";
-import { User } from "next-auth";
+import { getPrisma } from "./db";
+
+const failedReauthenticationLimiter = new RateLimiterMemory({
+    points: 15, // 15 failed attempts allowed
+    duration: 60 * 15, // reset after 15 minutes
+});
 
 export const genericSAValidator = async <T>(props: {
     requiredRole: AuthRole,
-    data?: any,
-    schema?: z.ZodType<T>,
-}): Promise<[User, T | null]> => {
+    data: any,
+    schema: z.ZodType<T>,
+    reauthenticate?: "password",
+}): Promise<[User, T]> => {
     const session = await auth();
 
     if (!session || !session.user) {
@@ -19,17 +27,50 @@ export const genericSAValidator = async <T>(props: {
     if (session.user.role < props.requiredRole) {
         throw new Error('User not Authorized for SA');
     }
-    if (!props.schema) {
-        return [session.user, null]
-    }
-    if (!props.data) {
-        throw new Error('SA Implementation Error: ZodSchema but no Data Provided');
-    }
 
     const zodResult = props.schema.safeParse(props.data);
     if (!zodResult.success) {
         throw new Error('Props not valid');
     }
 
+    if (props.reauthenticate === "password") {
+        const count = await failedReauthenticationLimiter.get(session.user.id);
+        if (count && count.remainingPoints <= 0) {
+            throw new Error('Requthentication ratelimit reached: ' + session.user.id);
+        }
+
+        const user = await getPrisma(session.user.assosiation.id).user.findUnique({
+            select: { password: true },
+            where: {
+                id: session.user.id,
+                active: true
+            }
+        });
+
+        const password = (zodResult.data as any).password
+
+        if (!password || !user || !await compare(password, user.password)) {
+            failedReauthenticationLimiter.consume(session.user.id);
+            throw new Error('Reauthentication failed');
+        }
+    }
+
     return [session.user, zodResult.data]
 }
+
+export const genericSANoDataValidator = async <T>(props: {
+    requiredRole: AuthRole,
+}): Promise<User> => {
+    const session = await auth();
+
+    if (!session || !session.user) {
+        return redirect('/login');
+    }
+    if (session.user.role < props.requiredRole) {
+        throw new Error('User not Authorized for SA');
+    }
+
+    return session.user
+}
+
+
