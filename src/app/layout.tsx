@@ -1,5 +1,10 @@
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/global.css';
+
+import 'react-toastify/dist/ReactToastify.css';
+import ModalProvider from '@/components/modalProvider';
+import { ToastContainer, Zoom } from 'react-toastify';
 
 export const metadata = {
     title: 'Next.js',
@@ -14,9 +19,18 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <div className="container-fluid p-5 m-0 p-md-auto">
-                    {children}
-                </div>
+                <ModalProvider>
+                    <div className="container-fluid p-5 m-0 p-md-auto">
+                        {children}
+                    </div>
+                </ModalProvider>
+                <ToastContainer
+                    position='top-right'
+                    autoClose={2500}
+                    theme='light'
+                    hideProgressBar={true}
+                    transition={Zoom}
+                />
             </body>
         </html>
     )
