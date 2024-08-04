@@ -6,16 +6,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { User } from "@prisma/client";
 import { Button, Table } from "react-bootstrap";
 import UserAdminTableRow from "./tableRow";
+import { useState } from "react";
+import { auth } from "@/lib/authentication/auth";
 
 export default function UserAdminTable({
-    initialData
+    initialData, userId
 }: {
-    initialData: User[]
+    initialData: User[];
+    userId: string;
 }) {
+    console.log("🚀 ~ userId:", userId)
 
     const { userList } = userAdministrationUserList(initialData);
-
-
+    const [showNewRow, setShowNewRow] = useState(false);
 
     return (
         <Table striped>
@@ -28,18 +31,31 @@ export default function UserAdminTable({
                     <th>Status</th>
                     <th>2FA-Status</th>
                     <th>
-                        <Button size="sm" variant="outline-success" className="border-0">
+                        <Button
+                            size="sm"
+                            variant="outline-success"
+                            className="border-0"
+                            onClick={() => setShowNewRow(true)}
+                        >
                             <FontAwesomeIcon icon={faPlus} />
                         </Button>
                     </th>
                 </tr>
             </thead>
             <tbody>
+                {(showNewRow) &&
+                    <UserAdminTableRow
+                        closeNewLine={() => setShowNewRow(false)}
+                        user={null} 
+                        rowOfActiveUser={false}/>
+                }
                 {userList?.map(user =>
                     <UserAdminTableRow
                         key={user.id}
-                        user={user} 
-                        />
+                        user={user}
+                        closeNewLine={() => setShowNewRow(false)}
+                        rowOfActiveUser={user.id === userId}
+                    />
                 )}
             </tbody>
         </Table>

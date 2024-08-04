@@ -1,9 +1,9 @@
-import { getUserList } from "@/actions/users/getUsers";
+import { getUserList } from "@/actions/users";
 import { User } from "@prisma/client";
 import useSWR from "swr";
 
 
-export const userAdministrationUserList = (initialData?: User[]) => {
+export function userAdministrationUserList(initialData?: User[]) {
     const { data, mutate } = useSWR(
         'admin.user.list',
         () => getUserList(),
