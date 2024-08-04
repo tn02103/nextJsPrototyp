@@ -51,18 +51,25 @@ CREATE TABLE "LoginAttempt" (
     "withToken" BOOLEAN NOT NULL,
     "successful" BOOLEAN NOT NULL,
     "message" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "loginAttempt_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "LoginAttempt_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Assosiation_name_key" ON "Assosiation"("name");
 
--- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_assosiationId_fkey" FOREIGN KEY ("assosiationId") REFERENCES "Assosiation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "EmailToken_token_userId_key" ON "EmailToken"("token", "userId");
 
 -- AddForeignKey
-ALTER TABLE "EmailToken" ADD CONSTRAINT "EmailToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "User"
+ADD CONSTRAINT "User_assosiationId_fkey" FOREIGN KEY ("assosiationId") REFERENCES "Assosiation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TowFactorAppUser" ADD CONSTRAINT "TowFactorAppUser_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "EmailToken"
+ADD CONSTRAINT "EmailToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TowFactorAppUser"
+ADD CONSTRAINT "TowFactorAppUser_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

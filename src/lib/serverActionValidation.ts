@@ -13,11 +13,19 @@ const failedReauthenticationLimiter = new RateLimiterMemory({
     duration: 60 * 15, // reset after 15 minutes
 });
 
+/**
+ * validation for ServerActions
+ * !IMPORTANT! when using extra csrf-Protection. Implementation must not be serverAction, but called from enclosed ServerAction. userId should be passed through the encloser.
+ * @param props 
+ * 
+ * @returns 
+ */
 export const genericSAValidator = async <T>(props: {
     requiredRole: AuthRole,
     data: any,
     schema: z.ZodType<T>,
     reauthenticate?: "password",
+    csrfProtected?: boolean,
 }): Promise<[User, T]> => {
     const session = await auth();
 
@@ -31,6 +39,10 @@ export const genericSAValidator = async <T>(props: {
     const zodResult = props.schema.safeParse(props.data);
     if (!zodResult.success) {
         throw new Error('Props not valid');
+    }
+
+    if (props.csrfProtected && session.user.id !== (zodResult.data as any).userId) {
+        throw new Error('CSRF Protection for SA failed');
     }
 
     if (props.reauthenticate === "password") {
@@ -54,6 +66,7 @@ export const genericSAValidator = async <T>(props: {
             throw new Error('Reauthentication failed');
         }
     }
+
 
     return [session.user, zodResult.data]
 }

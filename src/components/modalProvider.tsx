@@ -3,6 +3,7 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from "react";
 import PasswordReauthenticationModal from "./passwordReauthenticationModal";
 import ResetPasswordModal from "./resetPasswordModal";
+import ActivateAuthenticatorModal from "./activateAuthenticator";
 
 type ModalCapsule = {
     modalType: ModalTypes,
@@ -12,13 +13,14 @@ type ModalCapsule = {
 type ModalContextType = {
     passwordReauthenticationModal: (doAction: (p: string) => void) => void;
     resetPasswordModal: (header: string, message: string, doAction: (p: string, m: boolean) => void) => void;
+    activateAuthenticatorModal: () => void;
 }
 
 export const ModalContext = createContext<ModalContextType | undefined>(undefined);
 export const useModal = () => useContext(ModalContext);
 
 
-type ModalTypes = "passwordReauthentication" | "resetPasswordModal"
+type ModalTypes = "passwordReauthentication" | "resetPasswordModal" | "activateAuthenticatorModal"
 
 const ModalProvider = ({ children }: { children: ReactNode }) => {
     const [queue, setQueue] = useState<ModalCapsule[]>([]);
@@ -42,14 +44,24 @@ const ModalProvider = ({ children }: { children: ReactNode }) => {
 
     }, []);
 
+    const activateAuthenticatorModal = useCallback(() => {
+        const modal = {
+            modalType: "activateAuthenticatorModal",
+            props: {}
+        } satisfies ModalCapsule
+        setQueue((prevState) => [...prevState, modal]);
+    }, []);
+
     const getModalContext = useCallback(() => {
         return {
             passwordReauthenticationModal,
             resetPasswordModal,
+            activateAuthenticatorModal,
         }
     }, [
         passwordReauthenticationModal,
         resetPasswordModal,
+        activateAuthenticatorModal,
     ]);
     const onClose = () => {
         setQueue(prevState => prevState.slice(1))
@@ -60,6 +72,8 @@ const ModalProvider = ({ children }: { children: ReactNode }) => {
                 return <PasswordReauthenticationModal {...modal.props} onClose={onClose} />;
             case "resetPasswordModal":
                 return <ResetPasswordModal {...modal.props} onClose={onClose} />;
+            case "activateAuthenticatorModal":
+                return <ActivateAuthenticatorModal onClose={onClose} />
         }
     }
     return (

@@ -17,18 +17,18 @@ model Assosiation {
 }
 
 model User {
-    id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Char(36)
-    username           String             @db.VarChar(10)
+    id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Char(36)
+    username           String       @db.VarChar(10)
     name               String
     password           String
-    role               Int                @db.SmallInt
+    role               Int          @db.SmallInt
     email              String
-    usingAuthenticator Boolean            @default(false)
-    active             Boolean            @default(true)
-    assosiationId      String             @db.Char(36)
-    assosiation        Assosiation        @relation(fields: [assosiationId], references: [id])
+    usingAuthenticator Boolean      @default(false)
+    active             Boolean      @default(true)
+    assosiationId      String       @db.Char(36)
+    assosiation        Assosiation  @relation(fields: [assosiationId], references: [id])
     emailToken         EmailToken[]
-    towFactorAppUser   TowFactorAppUser[]
+    towFactorApp       TwoFactorApp?
 }
 
 model EmailToken {
@@ -41,11 +41,12 @@ model EmailToken {
     @@unique([token, userId])
 }
 
-model TowFactorAppUser {
+model TwoFactorApp {
     id       String  @id @default(dbgenerated("gen_random_uuid()"))
     secret   String
+    appName  String
     verified Boolean @default(false)
-    userId   String  @db.Char(36)
+    userId   String  @unique @db.Char(36)
     user     User    @relation(fields: [userId], references: [id])
 }
 

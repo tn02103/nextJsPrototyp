@@ -109,7 +109,6 @@ export const customCredentialProvider = Credentials({
                 active: true,
             },
         });
-        console.log("🚀 ~ authorize: ~ dbUser, password:", dbUser, password);
 
         if (!dbUser || !await bcrypt.compare(password, dbUser.password)) {
             await ipLimiter.consume(ipAdress);
@@ -156,7 +155,10 @@ export const customCredentialProvider = Credentials({
 
 async function verifyToken(userId: string, usingAuthenticator: boolean, token: string, prisma: PrismaClient) {
     if (usingAuthenticator) {
-        const appdata = await prisma.towFactorAppUser.findFirst({ where: { userId, verified: true } });
+        const appdata = await prisma.twoFactorApp.findFirst({ 
+            where: { userId, verified: true },
+            select: {secret: true },
+         });
         if (!appdata) throw Error('2FA-App not found');
 
         const totp = new TOTP({

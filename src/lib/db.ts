@@ -26,7 +26,9 @@ const prisma = globalForPrisma.prisma || new PrismaClient({
     omit: {
         user: {
             password: true,
-            usingAuthenticator: true,
+        },
+        twoFactorApp: {
+            secret: true,
         }
     }
 });
