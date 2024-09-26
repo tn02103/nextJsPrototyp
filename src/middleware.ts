@@ -9,7 +9,7 @@ export default auth((request) => {
     const pathname = decodeURIComponent(request.nextUrl.pathname);
    
     if (!session || !session.user) {
-        if (pathname.startsWith("/public") || pathname.startsWith("/login")) {
+        if (pathname.startsWith("/public") || pathname === "/login") {
             return;
         }
         return NextResponse.redirect(new URL('/login', request.url));
