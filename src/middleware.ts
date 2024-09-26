@@ -9,7 +9,7 @@ export default auth((request) => {
     const pathname = decodeURIComponent(request.nextUrl.pathname);
    
     if (!session || !session.user) {
-        if (pathname.startsWith("/public") || pathname === "/login") {
+        if (publicPaths.includes(pathname)) {
             return;
         }
         return NextResponse.redirect(new URL('/login', request.url));
@@ -19,7 +19,11 @@ export default auth((request) => {
         return NextResponse.rewrite(new URL('/403', request.url))
     }
 });
-
+const publicPaths = [
+    "/login",
+    "/public",
+    "/public/subpage"
+];
 
 export const config = {
     matcher: [
