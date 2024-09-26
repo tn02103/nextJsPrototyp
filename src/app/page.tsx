@@ -1,8 +1,11 @@
+import { TestSA } from "@/actions/test";
 import Link from "next/link";
+import { Button } from "react-bootstrap";
+import ButtonTest from "./testButton";
 
 
 export default async function Home() {
-   
+
     return (
         <div>
             Homepage
@@ -15,13 +18,15 @@ export default async function Home() {
                     <Link href={"/account"}>Mein Account</Link>
                 </li>
                 <li>
-                    
+
                 </li>
             </ul>
             <br />
-           
-            <br />
 
+            <br />
+            <ButtonTest />
         </div>
     );
 }
+
+

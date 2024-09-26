@@ -4,13 +4,10 @@ import { authConfig } from "./lib/authentication/auth.config";
 import { AuthRole } from "./lib/authRole";
 
 const { auth } = NextAuth(authConfig)
-
-
 export default auth((request) => {
-    const session = request.auth
-    const pathname = request.nextUrl.pathname;
-    // console.log("🚀 ~ auth middleware:", request.auth, session, pathname)
-
+    const session = request.auth;
+    const pathname = decodeURIComponent(request.nextUrl.pathname);
+   
     if (!session || !session.user) {
         if (pathname.startsWith("/public") || pathname.startsWith("/login")) {
             return;

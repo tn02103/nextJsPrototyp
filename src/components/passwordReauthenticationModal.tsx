@@ -21,8 +21,6 @@ export default function PasswordReauthenticationModal(props: { doAction: (p: str
                         autoComplete="off"
                         autoCorrect="off"
                         {...register('password', { required: true })} />
-
-
                 </ModalBody>
                 <ModalFooter>
                     <Button type="submit">Weiter</Button>

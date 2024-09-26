@@ -2,9 +2,8 @@
 
 import { AuthRole } from "@/lib/authRole";
 import { getPrisma } from "@/lib/db";
-import { genericSANoDataValidator, genericSAValidator } from "@/lib/serverActionValidation";
+import { genericSAValidator } from "@/lib/serverActionValidation";
 import { authenticatorAppNameSchema } from "@/zod/account";
-import { error } from "console";
 import { revalidatePath } from "next/cache";
 import { Secret, TOTP } from "otpauth";
 import { z } from "zod";
@@ -14,20 +13,25 @@ export const createTwoFactorApp = (props: authenticatorAppNameSchema) => generic
     data: props,
     schema: authenticatorAppNameSchema
 }).then(async ([user, { name }]) => getPrisma(user.assosiation.id).$transaction(async (client) => {
-    const twoFactorApp = await client.twoFactorApp.findUnique({
+    const dbUser = await client.user.findUniqueOrThrow({
         where: {
-            userId: user.id
-        }
+            id: user.id
+        },
+        include: {
+            towFactorApp: true,
+            assosiation: true
+        },
     });
 
-    if (twoFactorApp) throw new Error('Two Factor App for user allready configured');
+    if (dbUser?.towFactorApp) throw new Error('Two Factor App for user allready configured');
 
     const secret = new Secret({ size: 32 });
     const totp = new TOTP({
-        label: "NextJs-Prototype",
+        label: user.name!,
+        issuer: 'NextJs-Prototype-'+dbUser.assosiation.acronym,
         digits: 6,
         period: 30,
-        secret
+        secret,
     });
 
     await client.twoFactorApp.create({
@@ -59,7 +63,6 @@ export const verifyTowFactorApp = (props: string) => genericSAValidator({
 
     if (!app) throw new Error('Could not verify TwoFactorApp. NullValueException');
     if (app.verified) throw new Error('App already verified');
-    console.log("🚀 ~ verifyTowFactorApp ~ app:", app)
 
     const totp = new TOTP({
         secret: app.secret
@@ -69,7 +72,6 @@ export const verifyTowFactorApp = (props: string) => genericSAValidator({
         token,
         window: 3
     });
-    console.log("🚀 ~ verifyTowFactorApp ~ t:", t)
     if (!Number.isInteger(t)) throw new Error('Token is invalid');
 
     await client.twoFactorApp.update({

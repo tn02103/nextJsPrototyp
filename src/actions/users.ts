@@ -39,7 +39,6 @@ export const createUser = (props: createUserPropSchema) => genericSAValidator<cr
 
     const unhashedPassword = data.password;
     data.password = await hash(data.password, 12)
-    console.log(unhashedPassword, data.password);
     const newUser = await client.user.create({
         data: {
             ...data,

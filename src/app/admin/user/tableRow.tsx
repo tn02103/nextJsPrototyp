@@ -9,7 +9,6 @@ import { faBars, faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
-import { generate } from "generate-password";
 import { useState } from "react";
 import { Button, Dropdown, DropdownItem, FormCheck, FormControl, FormSelect } from "react-bootstrap";
 import { useForm } from "react-hook-form";
@@ -48,7 +47,6 @@ export default function UserAdminTableRow({
                 closeNewLine();
                 // show new Password
             }).catch((e) => {
-                console.log("🚀 ~ createMutation ~ e:", e)
                 toast.error('Beim Erstellen des Nutzers ist eine Fehler aufgetreten. Stellen Sie sicher, dass Sie Ihr richtige Passwort eingeben.')
             });
 
@@ -93,8 +91,8 @@ export default function UserAdminTableRow({
             toast.error('Beim Löschen des Nutzers gab es ein Problem');
         });
     }
+
     const formName = `user_${user ? user.id : "new"}`;
-    console.log(errors);
 
     if (!user || editable) {
         return (
@@ -145,9 +143,9 @@ export default function UserAdminTableRow({
                     <FormCheck
                         defaultChecked
                         disabled={rowOfActiveUser}
-                        {...register('active')}
                         type="switch"
                         label={watch('active') ? "Aktiv" : "Gespert"}
+                        {...register('active')}
                     />
                 </td>
                 <td colSpan={2} className="text-end">

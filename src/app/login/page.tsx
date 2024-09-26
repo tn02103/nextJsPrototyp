@@ -25,7 +25,6 @@ export default function LoginPage() {
             setSubmitting(true);
             setInvalidCredentials(false);
             login(data).then((result) => {
-                console.log(result);
                 if (result.error) {
                     setInvalidCredentials(true);
                 } else {
@@ -40,7 +39,6 @@ export default function LoginPage() {
             if (!data.token) return;
             setSubmitting(true);
             login(data).then((result) => {
-                console.log("🚀 ~ login ~ result:", result)
                 if (result.error || !result.logedIn) {
                     setInvalidCredentials(true);
                 } else {

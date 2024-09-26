@@ -16,8 +16,7 @@ const failedReauthenticationLimiter = new RateLimiterMemory({
 /**
  * validation for ServerActions
  * !IMPORTANT! when using extra csrf-Protection. Implementation must not be serverAction, but called from enclosed ServerAction. userId should be passed through the encloser.
- * @param props 
- * 
+ * @param props  
  * @returns 
  */
 export const genericSAValidator = async <T>(props: {
@@ -51,7 +50,7 @@ export const genericSAValidator = async <T>(props: {
             throw new Error('Requthentication ratelimit reached: ' + session.user.id);
         }
 
-        const user = await getPrisma(session.user.assosiation.id).user.findUnique({
+        const dbUser = await getPrisma(session.user.assosiation.id).user.findUnique({
             select: { password: true },
             where: {
                 id: session.user.id,
@@ -60,14 +59,11 @@ export const genericSAValidator = async <T>(props: {
         });
 
         const password = (zodResult.data as any).password
-
-        if (!password || !user || !await compare(password, user.password)) {
+        if (!password || !dbUser || !await compare(password, dbUser.password)) {
             failedReauthenticationLimiter.consume(session.user.id);
             throw new Error('Reauthentication failed');
         }
     }
-
-
     return [session.user, zodResult.data]
 }
 

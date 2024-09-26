@@ -20,10 +20,10 @@ export default async function AccountPage() {
     });
     if (!user) return <></>;
 
-    console.log("🚀 ~ AccountPage ~ user:", user);
-
     const userId = session.user.id;
-    async function csrfProtectedChangePasswordAction(data: { password: string, newPassword: string }): Promise<void> {
+    async function csrfProtectedChangePasswordAction(data: {
+        password: string, newPassword: string
+    }): Promise<void> {
         "use server";
 
         await changePasswordFunction({

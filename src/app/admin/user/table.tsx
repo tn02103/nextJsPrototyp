@@ -15,8 +15,6 @@ export default function UserAdminTable({
     initialData: User[];
     userId: string;
 }) {
-    console.log("🚀 ~ userId:", userId)
-
     const { userList } = userAdministrationUserList(initialData);
     const [showNewRow, setShowNewRow] = useState(false);
 

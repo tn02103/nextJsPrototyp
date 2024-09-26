@@ -137,7 +137,6 @@ export const customCredentialProvider = Credentials({
 
         // login
         await saveLoginAttempt({ ipAdress, acronym, username, withToken: true, successful: true, message: "Authentication without 2FA successful" });
-        console.log("🚀 ~ authorize: ~ succfully completed:");
         
         return {
             id: dbUser.id,
@@ -169,7 +168,6 @@ async function verifyToken(userId: string, usingAuthenticator: boolean, token: s
             token,
             window: 3
         });
-        console.log("🚀 ~ verifyToken ~ t:", t);
 
         return Number.isInteger(t);
     } else {
@@ -190,7 +188,6 @@ async function sendEmailToken(userId: string, email: string, prisma: PrismaClien
     const token = generator.generate({
         length: 6, numbers: true, lowercase: false, uppercase: false
     })
-    console.log("🚀 ~ sendEmailToken ~ token:", token)
 
 
 
@@ -217,7 +214,6 @@ async function sendEmailToken(userId: string, email: string, prisma: PrismaClien
             </div>
         </div>`
     });
-    console.log("🚀 ~ sendEmailToken ~ t:", t)
 }
 
 async function blockUser(id: string, email: string, prisma: PrismaClient) {
